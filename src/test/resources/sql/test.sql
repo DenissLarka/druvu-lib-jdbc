@@ -1,0 +1,1 @@
+select col1, col2 from table1 where col1 in (?) %s

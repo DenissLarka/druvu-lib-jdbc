@@ -1,0 +1,1 @@
+select col1, col2 from table1 where 1=1 %s %s
