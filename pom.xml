@@ -52,7 +52,7 @@
 		<tomcat.version>10.1.19</tomcat.version>
 
 		<h2.version>2.2.224</h2.version>
-		<lombok.version>1.18.30</lombok.version>
+		<lombok.version>1.18.32</lombok.version>
 	</properties>
 
 
