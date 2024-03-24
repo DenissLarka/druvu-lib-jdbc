@@ -15,7 +15,7 @@ public final class SimpleSql {
 
 	/**
 	 * Loading statement from string template replacing %s placeholders with the resources provided in args
-	 * This method is preferable to the {@link #fromFile(String)} as it is not depends on from working directory
+	 * This method is preferable to the {@link #fromFile(String)} as it is not depends on working directory
 	 */
 	public static SimpleSqlStatement fromResource(String mainPath, String... includePaths) {
 		return new SimpleSqlStatement(SqlLoader.load(mainPath, includePaths));
