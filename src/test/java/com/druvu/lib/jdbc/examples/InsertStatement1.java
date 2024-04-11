@@ -19,7 +19,6 @@ public class InsertStatement1 extends SqlStatement<Entity1> {
 		this.id = id;
 		this.newValue = Objects.requireNonNull(newValue);
 	}
-
 	@Override
 	public Object[] getParameters() {
 		return new Object[] {id, newValue};
@@ -29,5 +28,4 @@ public class InsertStatement1 extends SqlStatement<Entity1> {
 	public String getQuery() {
 		return SqlLoader.load("sql/examples/insert-table1.sql");
 	}
-
 }

@@ -15,30 +15,28 @@ import com.druvu.lib.jdbc.util.SqlLoader;
  * @author Deniss Larka
  * on 26 Mar 2024
  */
-public class Example1 {
+public class ExampleInTransaction extends ExampleBase {
 
 	public static void main(String[] args) {
-		Example1 example1 = new Example1();
-		example1.example();
+		ExampleInTransaction exampleInTransaction = new ExampleInTransaction();
+		exampleInTransaction.example();
 	}
 
 	public void example() {
-
 		final DbConfig config = createConfig();
-
 		//create pool, connections etc.
 		final DbAccess access = DbAccessFactory.create(config);
-
-		//loadBulk splits sql by lines and feed it to consumer - dbAccess
-		SqlLoader.loadBulk("sql/examples/create-and-fill-table1.sql", access::update);
-
-		access.inTransaction(this::tr);
-
+		fillFewLines(access);
+		access.inTransaction(this::inTransaction);
 		//Statements are first class citizens in opposite to ORM frameworks where entities are.
-
 	}
 
-	private List<Object> tr(DbAccessDirect access) {
+	private void fillFewLines(DbAccess access) {
+		//loadBulk splits sql by lines and feed it to consumer - dbAccess
+		SqlLoader.loadBulk("sql/examples/create-and-fill-table1.sql", access::update);
+	}
+
+	private List<Object> inTransaction(DbAccessDirect access) {
 		int sequence = sequence(access.select(new SimpleSqlStatement("SELECT nextval('SEQ1') AS ID")));
 		access.update(new InsertStatement1(sequence, "yes!"));
 		return null;
@@ -49,13 +47,6 @@ public class Example1 {
 		return (int) map.get("ID");
 	}
 
-	private DbConfig createConfig() {
-		return DbConfig.of("testDb",
-				"jdbc:h2:mem:mockChanges;MODE=PostgreSQL",
-				"sa",
-				"",
-				"org.h2.Driver",
-				"select 1 from dual");
-	}
+
 
 }
