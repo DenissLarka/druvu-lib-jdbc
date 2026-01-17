@@ -3,7 +3,7 @@ package com.druvu.lib.jdbc.examples;
 import com.druvu.lib.jdbc.DbAccess;
 import com.druvu.lib.jdbc.DbAccessFactory;
 import com.druvu.lib.jdbc.DbConfig;
-import com.druvu.lib.jdbc.statement.SimpleSql;
+import com.druvu.lib.jdbc.SimpleSql;
 
 /**
  * @author Deniss Larka

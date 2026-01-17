@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import com.druvu.lib.jdbc.statement.SqlStatement;
 
 /**
  * @author Deniss Larka

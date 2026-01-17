@@ -3,7 +3,6 @@ package com.druvu.lib.jdbc;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-import com.druvu.lib.jdbc.statement.SimpleSqlStatement;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +21,7 @@ public final class DbAccessFactory {
 		DbAccessTxImpl result = new DbAccessTxImpl(dbConfig.getId(), pool, new DataSourceTransactionManager(pool));
 		if (!dbConfig.getPoolProperties().getValidationQuery().isEmpty()) {
 			try {
-				result.select(new SimpleSqlStatement(dbConfig.getPoolProperties().getValidationQuery()));
+				result.select(SimpleSql.fromString(dbConfig.getPoolProperties().getValidationQuery()));
 			}
 			catch (Exception e) { //NOPMD
 				log.error("Exception in DB validation: {}", dbConfig);

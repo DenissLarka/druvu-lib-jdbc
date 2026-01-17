@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.druvu.lib.jdbc.statement.SqlStatement;
+import com.druvu.lib.jdbc.SqlStatement;
 import com.druvu.lib.jdbc.util.ArrayUtils;
 import com.druvu.lib.jdbc.util.MultiParam;
 import com.druvu.lib.jdbc.util.SqlDebug;

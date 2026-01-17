@@ -2,7 +2,7 @@ package com.druvu.lib.jdbc.util;
 
 import java.util.Arrays;
 
-import com.druvu.lib.jdbc.statement.SqlStatement;
+import com.druvu.lib.jdbc.SqlStatement;
 
 /**
  * @author Deniss Larka

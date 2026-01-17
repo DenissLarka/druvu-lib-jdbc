@@ -2,7 +2,7 @@ package com.druvu.lib.jdbc.examples;
 
 import java.util.Objects;
 
-import com.druvu.lib.jdbc.statement.SqlStatement;
+import com.druvu.lib.jdbc.SqlStatement;
 import com.druvu.lib.jdbc.util.SqlLoader;
 
 /**

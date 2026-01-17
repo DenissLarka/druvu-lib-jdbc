@@ -1,95 +1,233 @@
 # druvu-lib-jdbc
 
+A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html). Work with relational databases without ORM complexity — statements are first-class citizens.
 
-Based on [spring-jdbc](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html) a lightweight API allows to easy working with relational data without ORM burden.
+[![Maven Central](https://img.shields.io/maven-central/v/com.druvu/druvu-lib-jdbc.svg)](https://search.maven.org/artifact/com.druvu/druvu-lib-jdbc)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A database represents by [DbAccess](src/main/java/com/druvu/lib/jdbc/DbAccess.java) interface
+## Features
 
+- Fluent API for building SQL statements
+- Positional (`?`) and named (`:param`) parameter support
+- SQL loading from strings, resources, and files
+- SQL composition with `%s` includes
+- Dynamic parameter expansion (`???` → `?,?,?`)
+- Lambda-based row mappers
+- Built-in transaction support
+- Optional result handling with `selectOne()` / `selectFirst()`
 
+## Installation
 
-Here are few examples:
-
-## Simple select
-
-
-
-## In transaction
-
-
-```java
-
-public void example() {
-	final DbConfig config = createConfig();
-	//create pool, connections etc.
-	final DbAccess access = DbAccessFactory.create(config);
-	//loadBulk splits sql by lines and feed it to consumer - dbAccess
-	SqlLoader.loadBulk("sql/examples/create-and-fill-table1.sql", access::update);
-	access.inTransaction(this::inTransaction);
-}
-
-private List<Object> inTransaction(DbAccessDirect access) {
-	int sequence = sequence(access.select(new SimpleSqlStatement("SELECT nextval('SEQ1') AS ID")));
-	access.update(new InsertStatement1(sequence, "yes!"));
-	return null;
-}
-
-private DbConfig createConfig() {
-		return DbConfig.of("testDb",
-				"jdbc:h2:mem:mockChanges;MODE=PostgreSQL",
-				"sa",
-				"",
-				"org.h2.Driver",
-				"select 1 from dual");
-	}
+```xml
+<dependency>
+    <groupId>com.druvu</groupId>
+    <artifactId>druvu-lib-jdbc</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ```
 
-where [InsertStatement1](src/main/java/com/druvu/lib/jdbc/examples/InsertStatement1.java):
+Requires Spring JDBC 6.1+ as a provided dependency.
+
+## Quick Start
 
 ```java
-public class InsertStatement1 extends SqlStatement<Entity1> {
+// Create database access
+DbConfig config = DbConfig.of("myDb",
+    "jdbc:postgresql://localhost/mydb", "user", "pass",
+    "org.postgresql.Driver", "SELECT 1");
+DbAccess db = DbAccessFactory.create(config);
 
-	private final int id;
-	private final String newValue;
+// Simple query
+List<Map<String, Object>> users = db.select(
+    SimpleSql.fromString("SELECT * FROM users WHERE status = ?").with("active"));
 
-	public InsertStatement1(int id, String newValue) {
-		super(new Entity1Mapper());
-		this.id = id;
-		this.newValue = Objects.requireNonNull(newValue);
-	}
-	@Override
-	public Object[] getParameters() {
-		return new Object[] {id, newValue};
-	}
-
-	@Override
-	public String getQuery() {
-		return SqlLoader.load("sql/examples/insert-table1.sql");
-	}
-}
+// Get single result
+Optional<Map<String, Object>> user = db.selectOne(
+    SimpleSql.fromString("SELECT * FROM users WHERE id = ?").with(userId));
 ```
 
+## API Reference
 
+### Creating Statements
 
-where create-and-fill-table1.sql is:
+| Method | Description |
+|--------|-------------|
+| `SimpleSql.fromString(sql)` | Create from SQL string with positional `?` params |
+| `SimpleSql.fromResource(path)` | Load SQL from classpath resource |
+| `SimpleSql.fromFile(path)` | Load SQL from file system |
+| `SimpleSql.named(sql)` | Create with named `:param` parameters |
+| `SimpleSql.scalar(sql, type)` | Single-value queries (COUNT, MAX, etc.) |
+| `SimpleSql.query(sql, mapper)` | Typed query with custom RowMapper |
 
-```sql
-CREATE SEQUENCE SEQ1 START WITH 1;
-CREATE TABLE TABLE1
-(
-    ID_COL     INT NOT NULL PRIMARY KEY,
-    FIRST_COL  VARCHAR2(20),
-    SECOND_COL VARCHAR2(20)
+### Executing Statements
+
+| Method | Description |
+|--------|-------------|
+| `db.select(statement)` | Returns `List<T>` |
+| `db.selectOne(statement)` | Returns `Optional<T>`, throws if > 1 row |
+| `db.selectFirst(statement)` | Returns `Optional<T>` (first row only) |
+| `db.update(statement)` | Returns affected row count |
+| `db.inTransaction(fn)` | Execute multiple statements in transaction |
+
+## Examples
+
+### Positional Parameters
+
+```java
+// Fluent parameter binding
+db.select(SimpleSql.fromString("SELECT * FROM users WHERE status = ? AND role = ?")
+    .with("active", "admin"));
+
+// Chained binding
+db.select(SimpleSql.fromString("SELECT * FROM orders WHERE user_id = ? AND total > ?")
+    .with(userId)
+    .with(minTotal));
+```
+
+### Named Parameters
+
+```java
+// Named parameters - clearer for complex queries
+db.select(SimpleSql.named("SELECT * FROM users WHERE id = :id AND status = :status")
+    .with("id", userId)
+    .with("status", "active"));
+
+// Using Map
+db.select(SimpleSql.named("SELECT * FROM users WHERE id = :id")
+    .with(Map.of("id", userId)));
+```
+
+### Scalar Queries
+
+```java
+// Count
+int count = db.selectOne(SimpleSql.scalar("SELECT COUNT(*) FROM users", Integer.class))
+    .orElse(0);
+
+// Single value with parameter
+String name = db.selectOne(
+    SimpleSql.scalar("SELECT name FROM users WHERE id = ?", String.class).with(userId))
+    .orElseThrow();
+```
+
+### Custom Row Mappers (Lambda)
+
+```java
+// Inline lambda mapper - no separate class needed
+List<User> users = db.select(
+    SimpleSql.query("SELECT id, name, email FROM users WHERE status = ?",
+        (rs, rowNum) -> new User(
+            rs.getInt("id"),
+            rs.getString("name"),
+            rs.getString("email")))
+    .with("active"));
+
+// With named parameters
+Optional<User> user = db.selectOne(
+    SimpleSql.named("SELECT * FROM users WHERE id = :id")
+        .with("id", userId)
+        .map((rs, rowNum) -> new User(rs.getInt("id"), rs.getString("name"))));
+```
+
+### Loading SQL from Resources
+
+```java
+// Load from classpath resource
+db.select(SimpleSql.fromResource("sql/find-users.sql").with(status));
+
+// With SQL includes using %s placeholders
+// main.sql: SELECT * FROM users WHERE status = ? %s
+// filter.sql: AND role = ?
+db.select(SimpleSql.fromResource("sql/main.sql", "sql/filter.sql")
+    .with("active", "admin"));
+```
+
+### Dynamic IN Clause
+
+```java
+// ??? expands to match parameter count
+List<Integer> ids = List.of(1, 2, 3, 4, 5);
+String sql = MultiParam.replace("SELECT * FROM users WHERE id IN (???)", ids.size());
+// Result: SELECT * FROM users WHERE id IN (?,?,?,?,?)
+
+db.select(SimpleSql.fromString(sql).with(ids.toArray()));
+```
+
+### Transactions
+
+```java
+// Execute multiple statements in a transaction
+db.inTransaction(tx -> {
+
+    tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance - ? WHERE id = ?").with(amount, fromAccount));
+
+    tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance + ? WHERE id = ?").with(amount, toAccount));
+
+    return null;
+});
+```
+
+### Bulk SQL Execution
+
+```java
+// Execute multiple statements from a file (split by ;)
+SqlLoader.loadBulk("sql/schema.sql", db::update);
+```
+
+## Utilities
+
+### SqlDebug
+
+Fill placeholders for logging/debugging:
+
+```java
+String debugSql = SqlDebug.debug("SELECT * FROM users WHERE id = ?", new Object[]{42});
+// Result: SELECT * FROM users WHERE id = 42
+```
+
+### ArrayUtils
+
+Flatten nested collections for IN clauses:
+
+```java
+Object[] params = ArrayUtils.flat(1, Arrays.asList(2, 3), 4).toArray();
+// Result: [1, 2, 3, 4]
+```
+
+## Configuration
+
+```java
+DbConfig config = DbConfig.of(
+    "connectionId",           // Unique identifier
+    "jdbc:postgresql://...",  // JDBC URL
+    "username",               // Database user
+    "password",               // Database password
+    "org.postgresql.Driver",  // Driver class
+    "SELECT 1"                // Validation query
 );
-INSERT INTO TABLE1 (ID_COL, FIRST_COL, SECOND_COL)
-VALUES (nextval('SEQ1'), 'VALUE_COL_1_ROW_1', 'VALUE_COL_2_ROW_1');
-INSERT INTO TABLE1 (ID_COL, FIRST_COL, SECOND_COL)
-VALUES (nextval('SEQ1'), 'VALUE_COL_1_ROW_2', 'VALUE_COL_2_ROW_2');
-INSERT INTO TABLE1 (ID_COL, FIRST_COL, SECOND_COL)
-VALUES (nextval('SEQ1'), 'VALUE_COL_1_ROW_3', 'VALUE_COL_2_ROW_3');
-INSERT INTO TABLE1 (ID_COL, FIRST_COL, SECOND_COL)
-VALUES (nextval('SEQ1'), 'VALUE_COL_1_ROW_4', 'VALUE_COL_2_ROW_4');
-INSERT INTO TABLE1 (ID_COL, FIRST_COL, SECOND_COL)
-VALUES (nextval('SEQ1'), 'VALUE_COL_1_ROW_5', 'VALUE_COL_2_ROW_5');
 ```
 
+Connection pooling is handled via Tomcat JDBC Pool with sensible defaults.
 
+## Module Structure (JPMS)
+
+```java
+module com.druvu.lib.jdbc {
+    exports com.druvu.lib.jdbc;      // Core API
+    exports com.druvu.lib.jdbc.util; // Utilities
+}
+```
+
+Import the main classes from `com.druvu.lib.jdbc`:
+
+```java
+import com.druvu.lib.jdbc.DbAccess;
+import com.druvu.lib.jdbc.DbConfig;
+import com.druvu.lib.jdbc.DbAccessFactory;
+import com.druvu.lib.jdbc.SimpleSql;
+import com.druvu.lib.jdbc.SqlStatement;
+```
+
+## License
+
+Apache License 2.0

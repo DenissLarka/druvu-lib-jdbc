@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 
-import com.druvu.lib.jdbc.tomcat_pool.PoolPropertiesEx;
+import com.druvu.lib.jdbc.internal.PoolPropertiesEx;
 
 /**
  * @author Deniss Larka

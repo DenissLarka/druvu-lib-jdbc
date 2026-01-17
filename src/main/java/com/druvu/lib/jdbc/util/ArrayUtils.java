@@ -45,8 +45,8 @@ public final class ArrayUtils {
 		return result;
 	}
 
-	//parse parameters and 'unfold' any collection or array to raw Object array
-	//to use it parameterized you have to be sure all the elements are the same type, otherwise use Object
+	//to parse parameters and 'unfold' any collection or array to a raw Object array
+	//to use it parameterised, you have to be sure all the elements are the same type, otherwise use Object
 	public static <T> List<T> flat(Object... array) {
 		Objects.requireNonNull(array);
 		List<T> result = new ArrayList<>();

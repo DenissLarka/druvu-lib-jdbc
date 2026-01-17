@@ -1,13 +1,13 @@
-package com.druvu.lib.jdbc.util;
+package com.druvu.lib.jdbc.internal;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Useful to extract single item from the list.
+ * Useful to extract a single item from the list.
  *
  * @author Deniss Larka
- * at 09 Nov 2020
+ * <br/>at 09 Nov 2020
  */
 public final class OptionalUtils {
 

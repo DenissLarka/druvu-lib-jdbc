@@ -1,4 +1,4 @@
-package com.druvu.lib.jdbc.statement;
+package com.druvu.lib.jdbc.internal;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

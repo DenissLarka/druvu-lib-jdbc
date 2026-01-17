@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-import com.druvu.lib.jdbc.statement.SimpleSql;
-import com.druvu.lib.jdbc.statement.SimpleSqlStatement;
-import com.druvu.lib.jdbc.statement.SqlStatement;
+import com.druvu.lib.jdbc.SimpleSql;
+import com.druvu.lib.jdbc.SqlStatement;
+import com.druvu.lib.jdbc.internal.PlaceholderUtils;
 
 /**
  * @author Deniss Larka
@@ -42,7 +42,7 @@ public final class SqlLoader {
 		final String content = placeholderCount > 0
 				? String.format(sqlContent, PlaceholderUtils.resize(sqlIncludes, placeholderCount))
 				: sqlContent;
-		//if no includePaths supplied for some placeholders we clean them
+		//if no includePaths supplied for some placeholders, we clean them
 		return content.replaceAll(PlaceholderUtils.INCLUDE_PLACEHOLDER, EMPTY).trim();
 	}
 
@@ -123,7 +123,7 @@ public final class SqlLoader {
 				if (sqlContent.isEmpty()) {
 					continue;
 				}
-				consumer.accept(new SimpleSqlStatement(sqlContent));
+				consumer.accept(SimpleSql.fromString(sqlContent));
 			}
 		}
 	}

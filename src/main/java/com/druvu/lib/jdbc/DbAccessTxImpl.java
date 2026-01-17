@@ -8,10 +8,11 @@ import javax.sql.DataSource;
 
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.druvu.lib.jdbc.statement.SqlStatement;
+import com.druvu.lib.jdbc.internal.NamedSqlStatement;
 import com.druvu.lib.jdbc.util.SqlDebug;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ class DbAccessTxImpl implements DbAccess {
 	public static final int FETCH_SIZE = 2000;
 	private final String id;
 	private final JdbcTemplate jdbcTemplate;
+	private final NamedParameterJdbcTemplate namedJdbcTemplate;
 	private final TransactionTemplate transactionReadOnly;
 	private final TransactionTemplate transactionWrite;
 
@@ -34,6 +36,7 @@ class DbAccessTxImpl implements DbAccess {
 		this.id = Objects.requireNonNull(id);
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.jdbcTemplate.setFetchSize(FETCH_SIZE);
+		this.namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		this.transactionReadOnly = new TransactionTemplate(transactionManager);
 		this.transactionReadOnly.setReadOnly(true);
 		this.transactionWrite = new TransactionTemplate(transactionManager);
@@ -53,11 +56,18 @@ class DbAccessTxImpl implements DbAccess {
 	@Override
 	public <T> List<T> select(SqlStatement<T> select) {
 		final long start = System.currentTimeMillis();
-		final List<T> result =
-				transactionReadOnly.execute(status -> jdbcTemplate.query(
-						select.getQuery(),
-						select.rowMapper(),
-						select.getParameters()));
+		final List<T> result;
+		if (select instanceof NamedSqlStatement<?> named) {
+			result = transactionReadOnly.execute(status -> namedJdbcTemplate.query(
+					select.getQuery(),
+					named.getNamedParameters(),
+					select.rowMapper()));
+		} else {
+			result = transactionReadOnly.execute(status -> jdbcTemplate.query(
+					select.getQuery(),
+					select.rowMapper(),
+					select.getParameters()));
+		}
 		if (log.isDebugEnabled()) {
 			final String filledSqlString = SqlDebug.debug(select);
 			final long stop = System.currentTimeMillis();
@@ -69,7 +79,12 @@ class DbAccessTxImpl implements DbAccess {
 	@Override
 	public Integer update(SqlStatement<?> update) {
 		final long start = System.currentTimeMillis();
-		final Integer result = transactionWrite.execute(status -> jdbcTemplate.update(update.getQuery(), update.getParameters()));
+		final Integer result;
+		if (update instanceof NamedSqlStatement<?> named) {
+			result = transactionWrite.execute(status -> namedJdbcTemplate.update(update.getQuery(), named.getNamedParameters()));
+		} else {
+			result = transactionWrite.execute(status -> jdbcTemplate.update(update.getQuery(), update.getParameters()));
+		}
 		if (log.isDebugEnabled()) {
 			final String filledSqlString = SqlDebug.debug(update);
 			final long stop = System.currentTimeMillis();

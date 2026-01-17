@@ -1,4 +1,4 @@
-package com.druvu.lib.jdbc.util;
+package com.druvu.lib.jdbc.internal;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -6,11 +6,11 @@ import java.util.regex.Pattern;
 
 /**
  * @author Deniss Larka
- * on 19 Jan 2024
+ * <br/>on 19 Jan 2024
  */
 public final class PlaceholderUtils {
 
-	static final String INCLUDE_PLACEHOLDER = "\\%s";
+	public static final String INCLUDE_PLACEHOLDER = "\\%s";
 	static final Pattern INCLUDE_PLACEHOLDER_RE = Pattern.compile(INCLUDE_PLACEHOLDER);
 	static final String EMPTY = "";
 
@@ -18,7 +18,7 @@ public final class PlaceholderUtils {
 	}
 
 
-	static String[] resize(String[] array, int countLimit) {
+	public static String[] resize(String[] array, int countLimit) {
 		final String[] newArray = Arrays.copyOf(array, countLimit);
 		for (int i = 0; i < newArray.length; i++) {
 			//padding with empty strings
@@ -29,7 +29,7 @@ public final class PlaceholderUtils {
 		return newArray;
 	}
 
-	static int countIncludePlaceholders(String sql) {
+	public static int countIncludePlaceholders(String sql) {
 		return count(sql, INCLUDE_PLACEHOLDER_RE);
 	}
 

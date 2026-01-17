@@ -1,4 +1,4 @@
-package com.druvu.lib.jdbc.tomcat_pool;
+package com.druvu.lib.jdbc.internal;
 
 import java.util.Objects;
 
@@ -9,7 +9,7 @@ import lombok.SneakyThrows;
 
 /**
  * @author Deniss Larka
- * on 30 Jan 2024
+ * <br/>on 30 Jan 2024
  */
 public class PoolPropertiesEx extends PoolProperties {
 

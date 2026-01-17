@@ -1,4 +1,4 @@
-package com.druvu.lib.jdbc.statement;
+package com.druvu.lib.jdbc;
 
 import java.util.Collections;
 import java.util.List;
@@ -6,7 +6,12 @@ import java.util.Objects;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.druvu.lib.jdbc.internal.ThrowingMapper;
+
 /**
+ * Base class for SQL statements with type-safe result mapping.
+ *
+ * @param <T> the result type
  * @author Deniss Larka
  * at 29 May 2020
  */
