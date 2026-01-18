@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
  * Simple replacement of predefined placeholder with provided number of "?" parameters
  *
  * @author Deniss Larka
- * at 25 Aug 2021
+ * <br/>on 25 Aug 2021
  */
 public final class MultiParam {
 

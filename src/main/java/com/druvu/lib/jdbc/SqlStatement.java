@@ -7,13 +7,15 @@ import java.util.Objects;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.druvu.lib.jdbc.internal.ThrowingMapper;
+import com.druvu.lib.jdbc.util.SqlDebug;
 
 /**
  * Base class for SQL statements with type-safe result mapping.
  *
  * @param <T> the result type
+ *
  * @author Deniss Larka
- * at 29 May 2020
+ * <br/>on 29 May 2020
  */
 public class SqlStatement<T> {
 
@@ -49,6 +51,16 @@ public class SqlStatement<T> {
 
 	public RowMapper<T> rowMapper() {
 		return rowMapper;
+	}
+
+	/**
+	 * Returns the SQL query with parameter placeholders filled in with actual values.
+	 * Useful for debugging and logging.
+	 *
+	 * @return the SQL string with parameters substituted
+	 */
+	public String toDebugString() {
+		return SqlDebug.debug(this);
 	}
 
 	@Override

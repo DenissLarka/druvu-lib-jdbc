@@ -2,6 +2,7 @@ package com.druvu.lib.jdbc;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -41,5 +42,18 @@ class DbAccessDirectImpl implements DbAccessDirect {
 	@Override
 	public void call(String procedure) {
 		jdbcTemplate.update(procedure);
+	}
+
+	@Override
+	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
+		if (statement instanceof NamedSqlStatement<?> named) {
+			namedJdbcTemplate.query(statement.getQuery(), named.getNamedParameters(), rs -> {
+				rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
+			});
+		} else {
+			jdbcTemplate.query(statement.getQuery(), rs -> {
+				rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
+			}, statement.getParameters());
+		}
 	}
 }

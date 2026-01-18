@@ -2,6 +2,7 @@ package com.druvu.lib.jdbc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.druvu.lib.jdbc.internal.OptionalUtils;
 
@@ -47,4 +48,16 @@ public interface DbAccessDirect {
 	Integer update(SqlStatement<?> update);
 
 	void call(String procedure);
+
+	/**
+	 * Streams query results row-by-row without loading entire result set into memory.
+	 * <p>
+	 * Use this for large result sets where memory efficiency is important.
+	 * Each row is mapped and passed to the consumer immediately.
+	 *
+	 * @param statement the select statement to execute
+	 * @param rowConsumer consumer called for each mapped row
+	 * @param <T> the result type
+	 */
+	<T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer);
 }

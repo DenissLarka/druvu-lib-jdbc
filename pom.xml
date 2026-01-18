@@ -206,6 +206,7 @@
 					<effort>Max</effort>
 					<threshold>Low</threshold>
 					<xmlOutput>true</xmlOutput>
+					<excludeFilterFile>${project.basedir}/_spotbug-filters/spotbugs-exclude.xml</excludeFilterFile>
 				</configuration>
 				<executions>
 					<execution>
@@ -271,37 +272,8 @@
 				</executions>
 			</plugin>
 
-			<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-			<!-- COVERAGE -->
-			<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.14</version>
-				<executions>
-					<execution>
-						<id>jacoco-prepare</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<formats>
-								<format>XML</format>
-							</formats>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
-
 
 </project>
 

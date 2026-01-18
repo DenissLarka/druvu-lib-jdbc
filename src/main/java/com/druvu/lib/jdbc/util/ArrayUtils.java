@@ -8,12 +8,12 @@ import java.util.Objects;
 
 
 /**
- * Can be useful in @{@link com.druvu.lib.jdbc.statement.SqlStatement#getParameters()} when you need to combine params from different places.
+ * Can be useful in @{@link com.druvu.lib.jdbc.SqlStatement#getParameters()} when you need to combine params from different places.
  * Also, to flat results if a mapper type is a collection.
  * Generally this is an array merger
  *
  * @author Deniss Larka
- * at 22 Jan 2021
+ * <br/>on 22 Jan 2021
  */
 public final class ArrayUtils {
 

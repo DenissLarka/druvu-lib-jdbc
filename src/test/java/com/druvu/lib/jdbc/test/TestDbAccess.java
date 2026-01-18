@@ -1,5 +1,6 @@
 package com.druvu.lib.jdbc.test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -254,6 +255,72 @@ public class TestDbAccess {
 
 		Assert.assertEquals(results.size(), 1);
 		Assert.assertEquals(results.get(0).get("FIRST_COL"), "value");
+	}
+
+	@Test
+	public void testStreamProcessesAllRows() {
+		// Insert more rows
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (2, 'value2')"));
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (3, 'value3')"));
+
+		List<TestEntity> collected = new ArrayList<>();
+		dbAccess.stream(
+				SimpleSql.query("SELECT ID_COL, FIRST_COL FROM TABLE1 ORDER BY ID_COL",
+						(rs, rowNum) -> new TestEntity(rs.getInt("ID_COL"), rs.getString("FIRST_COL"))),
+				collected::add);
+
+		Assert.assertEquals(collected.size(), 3);
+		Assert.assertEquals(collected.get(0).id, 1);
+		Assert.assertEquals(collected.get(1).id, 2);
+		Assert.assertEquals(collected.get(2).id, 3);
+	}
+
+	@Test
+	public void testStreamWithParameters() {
+		// Insert more rows
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (2, 'value2')"));
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (3, 'value3')"));
+
+		List<TestEntity> collected = new ArrayList<>();
+		dbAccess.stream(
+				SimpleSql.query("SELECT ID_COL, FIRST_COL FROM TABLE1 WHERE ID_COL > ? ORDER BY ID_COL",
+						(rs, rowNum) -> new TestEntity(rs.getInt("ID_COL"), rs.getString("FIRST_COL")))
+						.with(1),
+				collected::add);
+
+		Assert.assertEquals(collected.size(), 2);
+		Assert.assertEquals(collected.get(0).id, 2);
+		Assert.assertEquals(collected.get(1).id, 3);
+	}
+
+	@Test
+	public void testStreamWithNamedParameters() {
+		// Insert more rows
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (2, 'value2')"));
+		dbAccess.update(SimpleSql.fromString("INSERT INTO TABLE1 (ID_COL, FIRST_COL) VALUES (3, 'value3')"));
+
+		List<TestEntity> collected = new ArrayList<>();
+		dbAccess.stream(
+				SimpleSql.named("SELECT ID_COL, FIRST_COL FROM TABLE1 WHERE ID_COL > :minId ORDER BY ID_COL")
+						.with("minId", 1)
+						.map((rs, rowNum) -> new TestEntity(rs.getInt("ID_COL"), rs.getString("FIRST_COL"))),
+				collected::add);
+
+		Assert.assertEquals(collected.size(), 2);
+		Assert.assertEquals(collected.get(0).id, 2);
+		Assert.assertEquals(collected.get(1).id, 3);
+	}
+
+	@Test
+	public void testStreamEmptyResult() {
+		List<TestEntity> collected = new ArrayList<>();
+		dbAccess.stream(
+				SimpleSql.query("SELECT ID_COL, FIRST_COL FROM TABLE1 WHERE ID_COL = ?",
+						(rs, rowNum) -> new TestEntity(rs.getInt("ID_COL"), rs.getString("FIRST_COL")))
+						.with(999),
+				collected::add);
+
+		Assert.assertTrue(collected.isEmpty());
 	}
 
 	private static class TestEntity {

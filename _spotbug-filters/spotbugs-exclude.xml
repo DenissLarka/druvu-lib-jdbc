@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        SpotBugs false positives for fields used in lambdas and pattern matching.
+        SpotBugs has known issues detecting field usage through:
+        - Pattern matching with instanceof (Java 16+)
+        - Lambda expressions capturing fields
+    -->
+
+    <!-- DbAccessDirectImpl: fields are used in select() and update() methods -->
+    <Match>
+        <Class name="com.druvu.lib.jdbc.DbAccessDirectImpl"/>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+    </Match>
+
+    <!-- DbAccessTxImpl: all fields are actively used in the implementation -->
+    <Match>
+        <Class name="com.druvu.lib.jdbc.DbAccessTxImpl"/>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+    </Match>
+
+    <!--
+        CT_CONSTRUCTOR_THROW: These constructors use Objects.requireNonNull for
+        fail-fast validation. This is intentional - we want to fail early with a
+        clear NullPointerException rather than later with an obscure error.
+        The "finalizer attack" concern doesn't apply here as these are package-private
+        classes and don't have security-sensitive finalize() methods.
+    -->
+    <Match>
+        <Class name="com.druvu.lib.jdbc.DbAccessDirectImpl"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="com.druvu.lib.jdbc.DbAccessTxImpl"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+</FindBugsFilter>

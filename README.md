@@ -15,6 +15,7 @@ A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-
 - Lambda-based row mappers
 - Built-in transaction support
 - Optional result handling with `selectOne()` / `selectFirst()`
+- Row-by-row streaming for large result sets
 
 ## Installation
 
@@ -66,8 +67,10 @@ Optional<Map<String, Object>> user = db.selectOne(
 | `db.select(statement)` | Returns `List<T>` |
 | `db.selectOne(statement)` | Returns `Optional<T>`, throws if > 1 row |
 | `db.selectFirst(statement)` | Returns `Optional<T>` (first row only) |
+| `db.stream(statement, consumer)` | Process rows one-by-one (memory efficient) |
 | `db.update(statement)` | Returns affected row count |
-| `db.inTransaction(fn)` | Execute multiple statements in transaction |
+| `db.runInTransaction(action)` | Execute multiple statements in transaction |
+| `db.inTransaction(fn)` | Execute in transaction with return value |
 
 ## Examples
 
@@ -153,17 +156,38 @@ String sql = MultiParam.replace("SELECT * FROM users WHERE id IN (???)", ids.siz
 db.select(SimpleSql.fromString(sql).with(ids.toArray()));
 ```
 
+### Streaming Large Result Sets
+
+```java
+// Process rows one-by-one without loading entire result set into memory
+db.stream(
+    SimpleSql.query("SELECT * FROM large_table", (rs, rowNum) -> new Record(rs.getInt("id"), rs.getString("data"))),
+    record -> {
+        process(record);  // Called for each row
+    });
+
+// With parameters
+db.stream(
+    SimpleSql.query("SELECT * FROM events WHERE date > ?",
+        (rs, rowNum) -> new Event(rs.getInt("id"), rs.getString("name")))
+        .with(startDate),
+    event -> exportToFile(event));
+```
+
 ### Transactions
 
 ```java
-// Execute multiple statements in a transaction
-db.inTransaction(tx -> {
-
+// Execute multiple statements in a transaction (no return value)
+db.runInTransaction(tx -> {
     tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance - ? WHERE id = ?").with(amount, fromAccount));
-
     tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance + ? WHERE id = ?").with(amount, toAccount));
+});
 
-    return null;
+// Or with a return value
+List<Account> updated = db.inTransaction(tx -> {
+    tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance - ? WHERE id = ?").with(amount, fromAccount));
+    tx.update(SimpleSql.fromString("UPDATE accounts SET balance = balance + ? WHERE id = ?").with(amount, toAccount));
+    return tx.select(SimpleSql.fromString("SELECT * FROM accounts WHERE id IN (?, ?)").with(fromAccount, toAccount));
 });
 ```
 
@@ -176,13 +200,14 @@ SqlLoader.loadBulk("sql/schema.sql", db::update);
 
 ## Utilities
 
-### SqlDebug
+### Debugging SQL
 
-Fill placeholders for logging/debugging:
+Get the filled-in SQL for logging/debugging:
 
 ```java
-String debugSql = SqlDebug.debug("SELECT * FROM users WHERE id = ?", new Object[]{42});
-// Result: SELECT * FROM users WHERE id = 42
+var stmt = SimpleSql.fromString("SELECT * FROM users WHERE id = ?").with(42);
+log.debug("Executing: {}", stmt.toDebugString());
+// Output: SELECT * FROM users WHERE id = 42
 ```
 
 ### ArrayUtils

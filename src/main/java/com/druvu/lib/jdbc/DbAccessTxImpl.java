@@ -2,10 +2,10 @@ package com.druvu.lib.jdbc;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.sql.DataSource;
-
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -54,6 +54,11 @@ class DbAccessTxImpl implements DbAccess {
 	}
 
 	@Override
+	public void runInTransaction(Consumer<DbAccessDirect> action) {
+		transactionWrite.executeWithoutResult(status -> action.accept(new DbAccessDirectImpl(this.jdbcTemplate)));
+	}
+
+	@Override
 	public <T> List<T> select(SqlStatement<T> select) {
 		final long start = System.currentTimeMillis();
 		final List<T> result;
@@ -96,6 +101,18 @@ class DbAccessTxImpl implements DbAccess {
 	@Override
 	public void call(String procedure) {
 		transactionWrite.execute(status -> jdbcTemplate.update(procedure));
+	}
+
+	@Override
+	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
+		final long start = System.currentTimeMillis();
+		transactionReadOnly.executeWithoutResult(status ->
+				new DbAccessDirectImpl(jdbcTemplate).stream(statement, rowConsumer));
+		if (log.isDebugEnabled()) {
+			final String filledSqlString = SqlDebug.debug(statement);
+			final long stop = System.currentTimeMillis();
+			log.debug("DB-STREAM: {}/{}", (stop - start), filledSqlString);
+		}
 	}
 
 }

@@ -3,6 +3,7 @@ package com.druvu.lib.jdbc;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 
@@ -29,6 +30,11 @@ public class VoidDbAccess implements DbAccess {
 	}
 
 	@Override
+	public void runInTransaction(Consumer<DbAccessDirect> action) {
+		// No-op for void implementation
+	}
+
+	@Override
 	public <T> List<T> select(SqlStatement<T> select) {
 		return Collections.emptyList();
 	}
@@ -41,6 +47,11 @@ public class VoidDbAccess implements DbAccess {
 	@Override
 	public void call(String procedure) {
 		//
+	}
+
+	@Override
+	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
+		// No-op for void implementation
 	}
 
 }
