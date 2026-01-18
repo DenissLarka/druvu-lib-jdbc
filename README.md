@@ -2,7 +2,6 @@
 
 A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html). Work with relational databases without ORM complexity — statements are first-class citizens.
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.druvu/druvu-lib-jdbc.svg)](https://search.maven.org/artifact/com.druvu/druvu-lib-jdbc)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Features
@@ -17,17 +16,7 @@ A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-
 - Optional result handling with `selectOne()` / `selectFirst()`
 - Row-by-row streaming for large result sets
 
-## Installation
 
-```xml
-<dependency>
-    <groupId>com.druvu</groupId>
-    <artifactId>druvu-lib-jdbc</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-
-Requires Spring JDBC 6.1+ as a provided dependency.
 
 ## Quick Start
 
@@ -46,6 +35,8 @@ List<Map<String, Object>> users = db.select(
 Optional<Map<String, Object>> user = db.selectOne(
     SimpleSql.fromString("SELECT * FROM users WHERE id = ?").with(userId));
 ```
+
+
 
 ## API Reference
 
@@ -69,8 +60,9 @@ Optional<Map<String, Object>> user = db.selectOne(
 | `db.selectFirst(statement)` | Returns `Optional<T>` (first row only) |
 | `db.stream(statement, consumer)` | Process rows one-by-one (memory efficient) |
 | `db.update(statement)` | Returns affected row count |
-| `db.runInTransaction(action)` | Execute multiple statements in transaction |
-| `db.inTransaction(fn)` | Execute in transaction with return value |
+| `db.inTransaction(fn)` | Execute multiple statements in transaction |
+
+
 
 ## Examples
 
@@ -197,6 +189,8 @@ List<Account> updated = db.inTransaction(tx -> {
 // Execute multiple statements from a file (split by ;)
 SqlLoader.loadBulk("sql/schema.sql", db::update);
 ```
+
+
 
 ## Utilities
 
