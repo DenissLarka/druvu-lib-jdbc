@@ -1,6 +1,8 @@
-# druvu-lib-jdbc
+# SQL First JDBC
 
-A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html). Work with relational databases without ORM complexity — statements are first-class citizens.
+Work with SQL directly, skip the ORM complexity.
+
+A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html) where statements are first-class citizens.
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
