@@ -230,6 +230,32 @@ DbConfig config = DbConfig.of(
 
 Connection pooling is handled via Tomcat JDBC Pool with sensible defaults.
 
+### Non-transactional databases (ClickHouse and similar)
+
+Some drivers don't fit the JDBC-transaction model the Tomcat pool and Spring's
+`DataSourceTransactionManager` assume. **ClickHouse** is the primary example: with a
+server-side read-only user profile it rejects both `Connection#setAutoCommit(false)`
+(called by the TX manager) and `Connection#setReadOnly(false)` (called by the Tomcat
+pool on every borrow when `defaultReadOnly` is non-null).
+
+For these cases use `DbAccessFactory.createNonTransactional(dbConfig)`:
+
+- Returns a `DbAccessDirect` (narrower than `DbAccess`) so calling `inTransaction` on a
+  non-transactional connection becomes a compile-time error.
+- Internally forces `defaultReadOnly=null` on the pool so Tomcat skips the `setReadOnly`
+  call — no caller-side `withDefaultReadOnly(null)` needed.
+
+```java
+DbConfig config = DbConfig.of("clickhouse-db",
+    "jdbc:clickhouse://host:8443/db?ssl=true", user, password,
+    "com.clickhouse.jdbc.ClickHouseDriver", "SELECT 1");
+
+DbAccessDirect ch = DbAccessFactory.createNonTransactional(config);
+```
+
+For normal relational databases (PostgreSQL, Oracle, …) keep using `DbAccessFactory.create`
+— they support both transactions and `setReadOnly`.
+
 ## Module Structure (JPMS)
 
 ```java

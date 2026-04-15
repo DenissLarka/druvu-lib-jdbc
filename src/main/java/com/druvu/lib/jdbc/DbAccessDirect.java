@@ -60,4 +60,10 @@ public interface DbAccessDirect {
 	 * @param <T> the result type
 	 */
 	<T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer);
+
+	/**
+	 * Identifier of this database connection, as configured on {@link DbConfig}.
+	 * Useful for logs, metrics and distinguishing between multiple databases in the same app.
+	 */
+	String getId();
 }

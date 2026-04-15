@@ -50,12 +50,12 @@ class DbAccessTxImpl implements DbAccess {
 
 	@Override
 	public <T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement) {
-		return transactionWrite.execute(status -> statement.apply(new DbAccessDirectImpl(this.jdbcTemplate)));
+		return transactionWrite.execute(status -> statement.apply(new DbAccessDirectImpl(this.id, this.jdbcTemplate)));
 	}
 
 	@Override
 	public void runInTransaction(Consumer<DbAccessDirect> action) {
-		transactionWrite.executeWithoutResult(status -> action.accept(new DbAccessDirectImpl(this.jdbcTemplate)));
+		transactionWrite.executeWithoutResult(status -> action.accept(new DbAccessDirectImpl(this.id, this.jdbcTemplate)));
 	}
 
 	@Override
@@ -107,7 +107,7 @@ class DbAccessTxImpl implements DbAccess {
 	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
 		final long start = System.currentTimeMillis();
 		transactionReadOnly.executeWithoutResult(status ->
-				new DbAccessDirectImpl(jdbcTemplate).stream(statement, rowConsumer));
+				new DbAccessDirectImpl(this.id, jdbcTemplate).stream(statement, rowConsumer));
 		if (log.isDebugEnabled()) {
 			final String filledSqlString = SqlDebug.debug(statement);
 			final long stop = System.currentTimeMillis();
