@@ -14,8 +14,6 @@ import java.util.function.Function;
  */
 public interface DbAccess extends DbAccessDirect {
 
-	String getId();
-
 	<T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement);
 
 	/**

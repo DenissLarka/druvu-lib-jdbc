@@ -43,6 +43,20 @@ public class DbConfig {
 		return new DbConfig(this.id, copyConf);
 	}
 
+	/**
+	 * Override the pool's {@code defaultReadOnly}. Pass {@code null} to suppress the pool's
+	 * {@code Connection#setReadOnly} call entirely — required for drivers that reject the call on
+	 * server-side read-only connections (e.g. ClickHouse with a read-only user profile).
+	 *
+	 * <p>For ClickHouse you typically don't need to call this directly:
+	 * {@link DbAccessFactory#createNonTransactional} already applies {@code null} internally.
+	 */
+	public DbConfig withDefaultReadOnly(Boolean readOnly) {
+		final PoolConfiguration copyConf = PoolPropertiesEx.copy(this.pp);
+		copyConf.setDefaultReadOnly(readOnly);
+		return new DbConfig(this.id, copyConf);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("DB:%s/%s/%s", id, this.pp.getUsername(), this.pp.getUrl());

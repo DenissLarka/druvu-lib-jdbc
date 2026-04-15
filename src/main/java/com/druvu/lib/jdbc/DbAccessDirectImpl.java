@@ -15,12 +15,19 @@ import com.druvu.lib.jdbc.internal.NamedSqlStatement;
  */
 class DbAccessDirectImpl implements DbAccessDirect {
 
+	private final String id;
 	private final JdbcTemplate jdbcTemplate;
 	private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-	DbAccessDirectImpl(JdbcTemplate jdbcTemplate) {
+	DbAccessDirectImpl(String id, JdbcTemplate jdbcTemplate) {
+		this.id = Objects.requireNonNull(id);
 		this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate);
 		this.namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+	}
+
+	@Override
+	public String getId() {
+		return id;
 	}
 
 	@Override
