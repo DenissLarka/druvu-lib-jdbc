@@ -1,5 +1,7 @@
 # SQL First JDBC
 
+[![CI](https://github.com/DenissLarka/druvu-lib-jdbc/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DenissLarka/druvu-lib-jdbc/actions/workflows/ci.yml)
+
 Work with SQL directly, skip the ORM complexity.
 
 A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html) where statements are first-class citizens.
