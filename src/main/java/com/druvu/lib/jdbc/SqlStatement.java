@@ -1,5 +1,6 @@
 package com.druvu.lib.jdbc;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +32,8 @@ public class SqlStatement<T> {
 	//constructor runs: a failing new SqlStatement never becomes reachable by a finalizer
 	//(CT_CONSTRUCTOR_THROW); the private constructor itself never throws
 	public SqlStatement(RowMapper<T> rowMapper, String query, List<Object> arguments) {
-		this(List.copyOf(arguments), Objects.requireNonNull(rowMapper), Objects.requireNonNull(query));
+		//not List.copyOf: null elements are legitimate (SQL NULL) and List.copyOf rejects them
+		this(Collections.unmodifiableList(new ArrayList<>(arguments)), Objects.requireNonNull(rowMapper), Objects.requireNonNull(query));
 	}
 
 	public SqlStatement(RowMapper<T> rowMapper, String query) {
