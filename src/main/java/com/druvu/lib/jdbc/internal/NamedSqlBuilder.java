@@ -25,7 +25,7 @@ import com.druvu.lib.jdbc.SqlStatement;
  *
  * @author Deniss Larka
  */
-public class NamedSqlBuilder extends SqlStatement<Map<String, Object>> implements NamedSqlStatement<Map<String, Object>> {
+public final class NamedSqlBuilder extends SqlStatement<Map<String, Object>> implements NamedSqlStatement<Map<String, Object>> {
 
 	private final String query;
 	private final Map<String, Object> parameters;

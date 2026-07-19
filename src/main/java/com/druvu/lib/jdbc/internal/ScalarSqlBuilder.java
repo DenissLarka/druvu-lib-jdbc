@@ -27,7 +27,7 @@ import com.druvu.lib.jdbc.SqlStatement;
  * @param <T> the scalar result type
  * @author Deniss Larka
  */
-public class ScalarSqlBuilder<T> extends SqlStatement<T> {
+public final class ScalarSqlBuilder<T> extends SqlStatement<T> {
 
 	private final String query;
 	private final List<Object> parameters;

@@ -22,7 +22,7 @@ import com.druvu.lib.jdbc.SqlStatement;
  * @param <T> the result type
  * @author Deniss Larka
  */
-public class TypedSqlBuilder<T> extends SqlStatement<T> {
+public final class TypedSqlBuilder<T> extends SqlStatement<T> {
 
 	private final String query;
 	private final List<Object> parameters;

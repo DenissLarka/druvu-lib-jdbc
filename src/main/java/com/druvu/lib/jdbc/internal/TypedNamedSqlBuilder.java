@@ -21,7 +21,7 @@ import com.druvu.lib.jdbc.SqlStatement;
  * @param <T> the result type
  * @author Deniss Larka
  */
-public class TypedNamedSqlBuilder<T> extends SqlStatement<T> implements NamedSqlStatement<T> {
+public final class TypedNamedSqlBuilder<T> extends SqlStatement<T> implements NamedSqlStatement<T> {
 
 	private final String query;
 	private final Map<String, Object> parameters;

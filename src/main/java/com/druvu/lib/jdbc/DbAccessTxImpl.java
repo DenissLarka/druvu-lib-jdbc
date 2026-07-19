@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-class DbAccessTxImpl implements DbAccess {
+final class DbAccessTxImpl implements DbAccess {
 
 	public static final int FETCH_SIZE = 2000;
 	private final String id;

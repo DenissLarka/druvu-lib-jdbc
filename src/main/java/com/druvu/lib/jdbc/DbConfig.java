@@ -11,7 +11,7 @@ import com.druvu.lib.jdbc.internal.PoolPropertiesEx;
  * @author Deniss Larka
  * at 11 Aug 2020
  */
-public class DbConfig {
+public final class DbConfig {
 
 	private final String id;
 	private final PoolConfiguration pp;

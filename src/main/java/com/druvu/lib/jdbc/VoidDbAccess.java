@@ -11,7 +11,7 @@ import java.util.function.Function;
  * @author Deniss Larka
  * on 08 Feb 2023
  */
-public class VoidDbAccess implements DbAccess {
+public final class VoidDbAccess implements DbAccess {
 
 	private final String id;
 
