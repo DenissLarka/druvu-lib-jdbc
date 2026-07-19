@@ -29,7 +29,7 @@ import com.druvu.lib.jdbc.SqlStatement;
  * @author Deniss Larka
  * <br/>on 09 Jan 2021
  */
-public class SimpleSqlBuilder extends SqlStatement<Map<String, Object>> {
+public final class SimpleSqlBuilder extends SqlStatement<Map<String, Object>> {
 
 	private final String query;
 	private final List<Object> parameters;

@@ -13,7 +13,7 @@ import com.druvu.lib.jdbc.internal.NamedSqlStatement;
  * @author Deniss Larka
  * <br/>on 11 Nov 2020
  */
-class DbAccessDirectImpl implements DbAccessDirect {
+final class DbAccessDirectImpl implements DbAccessDirect {
 
 	private final String id;
 	private final JdbcTemplate jdbcTemplate;

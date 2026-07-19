@@ -24,21 +24,28 @@ public class SqlStatement<T> {
 	private final List<Object> arguments;
 
 	public SqlStatement() {
-		this(new ThrowingMapper<>(), "", Collections.emptyList());
+		this(Collections.emptyList(), new ThrowingMapper<>(), "");
 	}
 
+	//in all public constructors validation happens in the argument expressions, before Object's
+	//constructor runs: a failing new SqlStatement never becomes reachable by a finalizer
+	//(CT_CONSTRUCTOR_THROW); the private constructor itself never throws
 	public SqlStatement(RowMapper<T> rowMapper, String query, List<Object> arguments) {
-		this.rowMapper = Objects.requireNonNull(rowMapper);
-		this.query = Objects.requireNonNull(query);
-		this.arguments = List.copyOf(Objects.requireNonNull(arguments));
+		this(List.copyOf(arguments), Objects.requireNonNull(rowMapper), Objects.requireNonNull(query));
 	}
 
 	public SqlStatement(RowMapper<T> rowMapper, String query) {
-		this(rowMapper, query, Collections.emptyList());
+		this(Collections.emptyList(), Objects.requireNonNull(rowMapper), Objects.requireNonNull(query));
 	}
 
 	public SqlStatement(RowMapper<T> rowMapper) {
-		this(rowMapper, "");
+		this(Collections.emptyList(), Objects.requireNonNull(rowMapper), "");
+	}
+
+	private SqlStatement(List<Object> arguments, RowMapper<T> rowMapper, String query) {
+		this.rowMapper = rowMapper;
+		this.query = query;
+		this.arguments = arguments;
 	}
 
 	public String getQuery() {
