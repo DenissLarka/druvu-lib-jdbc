@@ -141,6 +141,12 @@ db.select(SimpleSql.fromResource("sql/main.sql", "sql/filter.sql")
     .with("active", "admin"));
 ```
 
+> **Escaping `%`:** if a loaded SQL file contains the `%s` character sequence, the whole file is
+> processed as a format string. A literal `%` that happens to be followed by `s` (e.g.
+> `LIKE '%smith'`) would be consumed as a placeholder — escape it as `%%` (`LIKE '%%smith'`).
+> Files without any `%s` sequence need no escaping. Better still, pass LIKE patterns as
+> parameters (`LIKE ?`), not as SQL text.
+
 ### Dynamic IN Clause
 
 ```java

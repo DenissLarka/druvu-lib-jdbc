@@ -1,6 +1,7 @@
 package com.druvu.lib.jdbc.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import com.druvu.lib.jdbc.DbAccess;
 import com.druvu.lib.jdbc.DbAccessFactory;
 import com.druvu.lib.jdbc.DbConfig;
 import com.druvu.lib.jdbc.SimpleSql;
+import com.druvu.lib.jdbc.SqlStatement;
 
 /**
  * @author Deniss Larka
@@ -321,6 +323,51 @@ public class TestDbAccess {
 				collected::add);
 
 		Assert.assertTrue(collected.isEmpty());
+	}
+
+	//regression: Map.copyOf in getNamedParameters rejected null values (setting SQL NULL crashed)
+	@Test
+	public void testNamedParameterWithNullValue() {
+		dbAccess.update(SimpleSql.named("UPDATE TABLE1 SET FIRST_COL = :value WHERE ID_COL = :id")
+				.with("value", null)
+				.with("id", 1));
+
+		final Map<String, Object> row = dbAccess.selectOne(
+				SimpleSql.fromString("SELECT * FROM TABLE1 WHERE ID_COL = ?").with(1)).orElseThrow();
+		Assert.assertNull(row.get("FIRST_COL"));
+	}
+
+	//regression: same null-value crash through the typed named builder
+	@Test
+	public void testTypedNamedParameterWithNullValue() {
+		dbAccess.update(SimpleSql.named("UPDATE TABLE1 SET FIRST_COL = :value WHERE ID_COL = :id")
+				.with("value", null)
+				.with("id", 1)
+				.map((rs, rowNum) -> rs.getString(1)));
+
+		final List<Map<String, Object>> rows = dbAccess.select(
+				SimpleSql.fromString("SELECT * FROM TABLE1 WHERE FIRST_COL IS NULL"));
+		Assert.assertEquals(rows.size(), 1);
+	}
+
+	//regression: List.copyOf in the SqlStatement constructor rejected null positional parameters
+	@Test
+	public void testPositionalNullParameter() {
+		dbAccess.update(new SqlStatement<>((rs, rowNum) -> "unused",
+				"UPDATE TABLE1 SET FIRST_COL = ? WHERE ID_COL = ?", Arrays.asList((Object) null, 1)));
+
+		final Map<String, Object> row = dbAccess.selectOne(
+				SimpleSql.fromString("SELECT * FROM TABLE1 WHERE ID_COL = ?").with(1)).orElseThrow();
+		Assert.assertNull(row.get("FIRST_COL"));
+	}
+
+	//regression: selectFirst used Optional.of and NPE'd when the single row maps to null
+	@Test
+	public void testSelectFirstNullScalar() {
+		final Optional<Integer> result = dbAccess.selectFirst(
+				SimpleSql.scalar("SELECT MAX(ID_COL) FROM TABLE1 WHERE ID_COL > ?", Integer.class).with(999));
+
+		Assert.assertTrue(result.isEmpty());
 	}
 
 	private static class TestEntity {

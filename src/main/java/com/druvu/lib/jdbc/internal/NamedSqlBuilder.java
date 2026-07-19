@@ -1,5 +1,6 @@
 package com.druvu.lib.jdbc.internal;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +75,8 @@ public final class NamedSqlBuilder extends SqlStatement<Map<String, Object>> imp
 
 	@Override
 	public Map<String, Object> getNamedParameters() {
-		return Map.copyOf(parameters);
+		//not Map.copyOf: null values are legitimate (SQL NULL) and Map.copyOf rejects them
+		return Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.druvu.lib.jdbc.util;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
 
 import com.druvu.lib.jdbc.SqlStatement;
 
@@ -23,7 +24,8 @@ public final class SqlDebug {
 	}
 
 	private static Object fillPlaceholder(Object str, Object parameter) {
-		return ((String) str).replaceFirst("\\?", fillParameter(parameter));
+		//quoteReplacement: '$' and '\' in values are otherwise interpreted as regex group references
+		return ((String) str).replaceFirst("\\?", Matcher.quoteReplacement(fillParameter(parameter)));
 	}
 
 	private static String fillParameter(Object parameter) {

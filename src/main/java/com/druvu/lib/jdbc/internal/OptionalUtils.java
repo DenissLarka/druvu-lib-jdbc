@@ -18,7 +18,8 @@ public final class OptionalUtils {
 		if (list == null || list.isEmpty()) {
 			return Optional.empty();
 		}
-		return Optional.of(list.get(0));
+		//ofNullable: the first row may itself map to null (e.g. scalar SELECT MAX(..) with no rows)
+		return Optional.ofNullable(list.get(0));
 	}
 
 	//make sure not more than one element

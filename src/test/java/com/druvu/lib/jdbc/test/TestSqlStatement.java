@@ -81,4 +81,33 @@ public class TestSqlStatement {
 	public void testFromResource6() {
 		MultiParam.replace("???", 1026);
 	}
+
+	//regression: '$' and '\' in values used to be interpreted as regex group references
+	@Test
+	public void testDebugSpecialCharacters() {
+		final String sql = SqlDebug.debug("select * from t where a=? and b=?", new Object[] {"price $5", "back\\slash"});
+		Assert.assertEquals(sql, "select * from t where a='price $5' and b='back\\slash'");
+	}
+
+	//regression: List.copyOf rejected null elements; null parameters are legitimate SQL NULLs
+	@Test
+	public void testConstructorAllowsNullArguments() {
+		final SqlStatement<String> statement = new SqlStatement<>((rs, rowNum) -> "x",
+				"update table1 set col1=? where col2=?", Arrays.asList((Object) null, 5));
+		Assert.assertEquals(statement.getParameters(), new Object[] {null, 5});
+	}
+
+	//regression: literal '%' escaped as '%%' survives include processing (file also contains %s)
+	@Test
+	public void testFromResourcePercentEscape() {
+		final String sql = SqlLoader.load("sql/test6.sql");
+		Assert.assertEquals(sql, "select col1 from table1 where name like '%smith'");
+	}
+
+	//a file without any %s sequence is not format-processed and needs no escaping
+	@Test
+	public void testFromResourcePercentWithoutPlaceholder() {
+		final String sql = SqlLoader.load("sql/test7.sql");
+		Assert.assertEquals(sql, "select col1 from table1 where name like '%jones'");
+	}
 }

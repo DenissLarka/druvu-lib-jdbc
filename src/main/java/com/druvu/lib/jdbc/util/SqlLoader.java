@@ -35,15 +35,19 @@ public final class SqlLoader {
 		return compose(sqlContent);
 	}
 
+	//NOTE: '%s' in the SQL text is an include placeholder; when any is present the content goes
+	//through String.format, so a literal '%' (LIKE patterns, modulo) must be escaped as '%%'
+	//in files that also contain the '%s' sequence — otherwise format corrupts or rejects it.
 	private static String compose(String sqlContent, String... includePaths) {
 		final String[] sqlIncludes = resourcesAsStrings(includePaths);
 		final int placeholderCount = PlaceholderUtils.countIncludePlaceholders(sqlContent);
-		//no placeholders, no filling
+		//no placeholders, no filling; missing includePaths are padded with empty strings,
+		//so format itself clears unfilled placeholders — no post-cleanup (it would eat
+		//literal "%s" sequences produced by '%%s' escapes or by the include content)
 		final String content = placeholderCount > 0
-				? String.format(sqlContent, PlaceholderUtils.resize(sqlIncludes, placeholderCount))
+				? String.format(sqlContent, (Object[]) PlaceholderUtils.resize(sqlIncludes, placeholderCount))
 				: sqlContent;
-		//if no includePaths supplied for some placeholders, we clean them
-		return content.replaceAll(PlaceholderUtils.INCLUDE_PLACEHOLDER, EMPTY).trim();
+		return content.trim();
 	}
 
 	public static void loadBulk(String resourcePath, Consumer<SqlStatement<Map<String, Object>>> consumer) {
@@ -102,7 +106,7 @@ public final class SqlLoader {
 	//All around the loading resources is fragile and change drastically in JPMS.
 	//This one is just another try to get the resource
 	private static InputStream resourceAsStreamStatic(String resourcePath) {
-		return SimpleSql.class.getResourceAsStream(resourcePath.indexOf(0) == '/' ? resourcePath : '/' + resourcePath);
+		return SimpleSql.class.getResourceAsStream(resourcePath.charAt(0) == '/' ? resourcePath : '/' + resourcePath);
 	}
 
 	//load resource as string
