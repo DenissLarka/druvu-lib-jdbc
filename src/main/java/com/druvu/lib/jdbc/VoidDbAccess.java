@@ -6,52 +6,47 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-
-/**
- * @author Deniss Larka
- * on 08 Feb 2023
- */
+/** @author Deniss Larka on 08 Feb 2023 */
 public final class VoidDbAccess implements DbAccess {
 
-	private final String id;
+    private final String id;
 
-	public VoidDbAccess(String id) {
-		this.id = Objects.requireNonNull(id);
-	}
+    public VoidDbAccess(String id) {
+        this.id = Objects.requireNonNull(id);
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	@Override
-	public <T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement) {
-		return Collections.emptyList();
-	}
+    @Override
+    public <T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement) {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public void runInTransaction(Consumer<DbAccessDirect> action) {
-		// No-op for void implementation
-	}
+    @Override
+    public void runInTransaction(Consumer<DbAccessDirect> action) {
+        // No-op for void implementation
+    }
 
-	@Override
-	public <T> List<T> select(SqlStatement<T> select) {
-		return Collections.emptyList();
-	}
+    @Override
+    public <T> List<T> select(SqlStatement<T> select) {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public Integer update(SqlStatement<?> update) {
-		return 0;
-	}
+    @Override
+    public Integer update(SqlStatement<?> update) {
+        return 0;
+    }
 
-	@Override
-	public void call(String procedure) {
-		//
-	}
+    @Override
+    public void call(String procedure) {
+        //
+    }
 
-	@Override
-	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
-		// No-op for void implementation
-	}
-
+    @Override
+    public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
+        // No-op for void implementation
+    }
 }

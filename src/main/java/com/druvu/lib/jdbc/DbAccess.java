@@ -7,20 +7,19 @@ import java.util.function.Function;
 /**
  * Represents database communication interface
  *
- * By contract promises to call all statements (also using inherited methods) in transaction
+ * <p>By contract promises to call all statements (also using inherited methods) in transaction
  *
- * @author Deniss Larka
- * <br/> on 11 Nov 2020
+ * @author Deniss Larka <br>
+ *     on 11 Nov 2020
  */
 public interface DbAccess extends DbAccessDirect {
 
-	<T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement);
+    <T> List<T> inTransaction(Function<DbAccessDirect, List<T>> statement);
 
-	/**
-	 * Executes multiple statements in a single transaction without returning a result.
-	 *
-	 * @param action the action to perform within the transaction
-	 */
-	void runInTransaction(Consumer<DbAccessDirect> action);
-
+    /**
+     * Executes multiple statements in a single transaction without returning a result.
+     *
+     * @param action the action to perform within the transaction
+     */
+    void runInTransaction(Consumer<DbAccessDirect> action);
 }
