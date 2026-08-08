@@ -59,6 +59,9 @@
 
 		<h2.version>2.4.240</h2.version>
 		<lombok.version>1.18.46</lombok.version>
+
+		<spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
+		<palantir-java-format.version>2.90.0</palantir-java-format.version>
 	</properties>
 
 
@@ -278,7 +281,34 @@
 				</executions>
 			</plugin>
 
-		</plugins>
+					<!-- spotless: house code formatter (same config as jconsole-booster / druvu-lib-jmxmp /
+			     druvu-lib-fx / druvu-acc-parent). `mvn spotless:apply` reformats; `check` runs in
+			     verify and fails on unformatted code. -->
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless-maven-plugin.version}</version>
+				<configuration>
+					<java>
+						<palantirJavaFormat>
+							<version>${palantir-java-format.version}</version>
+							<style>PALANTIR</style>
+							<formatJavadoc>true</formatJavadoc>
+						</palantirJavaFormat>
+						<removeUnusedImports/>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<phase>verify</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+</plugins>
 	</build>
 
 </project>

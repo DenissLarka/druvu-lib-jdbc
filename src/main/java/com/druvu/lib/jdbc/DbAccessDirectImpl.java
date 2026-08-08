@@ -1,66 +1,67 @@
 package com.druvu.lib.jdbc;
 
+import com.druvu.lib.jdbc.internal.NamedSqlStatement;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.druvu.lib.jdbc.internal.NamedSqlStatement;
-
 /**
- * @author Deniss Larka
- * <br/>on 11 Nov 2020
+ * @author Deniss Larka <br>
+ *     on 11 Nov 2020
  */
 final class DbAccessDirectImpl implements DbAccessDirect {
 
-	private final String id;
-	private final JdbcTemplate jdbcTemplate;
-	private final NamedParameterJdbcTemplate namedJdbcTemplate;
+    private final String id;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-	DbAccessDirectImpl(String id, JdbcTemplate jdbcTemplate) {
-		this.id = Objects.requireNonNull(id);
-		this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate);
-		this.namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-	}
+    DbAccessDirectImpl(String id, JdbcTemplate jdbcTemplate) {
+        this.id = Objects.requireNonNull(id);
+        this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate);
+        this.namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	@Override
-	public <T> List<T> select(SqlStatement<T> select) {
-		if (select instanceof NamedSqlStatement<?> named) {
-			return namedJdbcTemplate.query(select.getQuery(), named.getNamedParameters(), select.rowMapper());
-		}
-		return jdbcTemplate.query(select.getQuery(), select.rowMapper(), select.getParameters());
-	}
+    @Override
+    public <T> List<T> select(SqlStatement<T> select) {
+        if (select instanceof NamedSqlStatement<?> named) {
+            return namedJdbcTemplate.query(select.getQuery(), named.getNamedParameters(), select.rowMapper());
+        }
+        return jdbcTemplate.query(select.getQuery(), select.rowMapper(), select.getParameters());
+    }
 
-	@Override
-	public Integer update(SqlStatement<?> update) {
-		if (update instanceof NamedSqlStatement<?> named) {
-			return namedJdbcTemplate.update(update.getQuery(), named.getNamedParameters());
-		}
-		return jdbcTemplate.update(update.getQuery(), update.getParameters());
-	}
+    @Override
+    public Integer update(SqlStatement<?> update) {
+        if (update instanceof NamedSqlStatement<?> named) {
+            return namedJdbcTemplate.update(update.getQuery(), named.getNamedParameters());
+        }
+        return jdbcTemplate.update(update.getQuery(), update.getParameters());
+    }
 
-	@Override
-	public void call(String procedure) {
-		jdbcTemplate.update(procedure);
-	}
+    @Override
+    public void call(String procedure) {
+        jdbcTemplate.update(procedure);
+    }
 
-	@Override
-	public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
-		if (statement instanceof NamedSqlStatement<?> named) {
-			namedJdbcTemplate.query(statement.getQuery(), named.getNamedParameters(), rs -> {
-				rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
-			});
-		} else {
-			jdbcTemplate.query(statement.getQuery(), rs -> {
-				rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
-			}, statement.getParameters());
-		}
-	}
+    @Override
+    public <T> void stream(SqlStatement<T> statement, Consumer<T> rowConsumer) {
+        if (statement instanceof NamedSqlStatement<?> named) {
+            namedJdbcTemplate.query(statement.getQuery(), named.getNamedParameters(), rs -> {
+                rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
+            });
+        } else {
+            jdbcTemplate.query(
+                    statement.getQuery(),
+                    rs -> {
+                        rowConsumer.accept(statement.rowMapper().mapRow(rs, rs.getRow()));
+                    },
+                    statement.getParameters());
+        }
+    }
 }

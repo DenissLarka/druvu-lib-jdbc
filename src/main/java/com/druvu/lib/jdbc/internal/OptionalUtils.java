@@ -6,35 +6,34 @@ import java.util.Optional;
 /**
  * Useful to extract a single item from the list.
  *
- * @author Deniss Larka
- * <br/>at 09 Nov 2020
+ * @author Deniss Larka <br>
+ *     at 09 Nov 2020
  */
 public final class OptionalUtils {
 
-	private OptionalUtils() {
-	}
+    private OptionalUtils() {}
 
-	public static <T> Optional<T> from(List<T> list) {
-		if (list == null || list.isEmpty()) {
-			return Optional.empty();
-		}
-		//ofNullable: the first row may itself map to null (e.g. scalar SELECT MAX(..) with no rows)
-		return Optional.ofNullable(list.get(0));
-	}
+    public static <T> Optional<T> from(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return Optional.empty();
+        }
+        // ofNullable: the first row may itself map to null (e.g. scalar SELECT MAX(..) with no rows)
+        return Optional.ofNullable(list.get(0));
+    }
 
-	//make sure not more than one element
-	public static <T> Optional<T> uniqueOpt(List<T> list) {
-		return Optional.ofNullable(uniqueItem(list));
-	}
+    // make sure not more than one element
+    public static <T> Optional<T> uniqueOpt(List<T> list) {
+        return Optional.ofNullable(uniqueItem(list));
+    }
 
-	//make sure not more than one element
-	public static <T> T uniqueItem(List<T> list) {
-		if (list == null || list.isEmpty()) {
-			return null;
-		}
-		if (list.size() > 1) {
-			throw new IllegalStateException("Forbidden condition for a list size:" + list.size());
-		}
-		return list.get(0);
-	}
+    // make sure not more than one element
+    public static <T> T uniqueItem(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new IllegalStateException("Forbidden condition for a list size:" + list.size());
+        }
+        return list.get(0);
+    }
 }
