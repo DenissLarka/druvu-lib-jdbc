@@ -9,6 +9,8 @@ Work with SQL directly, skip the ORM complexity.
 
 A lightweight JDBC wrapper built on [Spring JDBC](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/package-summary.html) where statements are first-class citizens.
 
+Project page: [druvu.com/projects/druvu-lib-jdbc](https://druvu.com/projects/druvu-lib-jdbc.html)
+
 ## Features
 
 - Fluent API for building SQL statements
