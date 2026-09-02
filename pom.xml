@@ -58,7 +58,7 @@
 		<tomcat.version>11.0.25</tomcat.version>
 
 		<h2.version>2.4.240</h2.version>
-		<lombok.version>1.18.46</lombok.version>
+		<lombok.version>1.18.48</lombok.version>
 
 		<spotless-maven-plugin.version>3.10.0</spotless-maven-plugin.version>
 		<palantir-java-format.version>2.90.0</palantir-java-format.version>
