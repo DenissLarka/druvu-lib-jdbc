@@ -36,4 +36,5 @@ replay_pid*
 build.log
 target
 **/*/target
+.DS_Store
 
